@@ -7,7 +7,7 @@ import math
 def dibujar_contenido_vale(c, folio):
     """
     Dibuja el diseño lógico de un solo vale.
-    (Misma función que aprobaste, con 4 items y ajustes de posición)
+    (Incluye los 4 items, folio horizontal en talón y márgenes ajustados)
     """
     # --- VARIABLES DE DISEÑO ---
     ancho_logico = 19 * cm
@@ -81,41 +81,41 @@ def dibujar_contenido_vale(c, folio):
     c.drawString(margen_cuerpo + 3.0*cm, 0.3*cm, "TOTAL: ______________")
 
     # --- LOGOS (Simulados) ---
-    
-    # Logo Central
     cx, cy = linea_corte_x, 4.2*cm
     radio = 1.4*cm 
     c.setFillColor(white)
     c.circle(cx, cy, radio, fill=1, stroke=0)
-    # c.drawImage("logo_centro.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
     
-    # Poster Festival
+    # Logo Azul placeholder
+    c.setFillColorRGB(0.2, 0.3, 0.7) 
+    c.circle(cx, cy, radio, fill=1, stroke=0)
+    c.drawImage("./assets/img/logo_patrona.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
+    
+    # Poster Festival placeholder
     px, py = 16.0*cm, 1.8*cm
     pw, ph = 2.8*cm, 4.5*cm
-    c.setFillColorRGB(1, 0.95, 0.85) # Color simulado
+    c.setFillColorRGB(1, 0.95, 0.85) 
     c.rect(px, py, pw, ph, fill=1, stroke=0)
-    # c.drawImage("poster.jpg", px, py, width=pw, height=ph, mask='auto')
+    c.drawImage("./assets/img/logo_bingo.png", px, py, width=pw, height=ph, mask='auto')
     
-    # Restaurar color negro
     c.setFillColor(black)
 
 
-def generar_lote_masivo(nombre_archivo, cantidad_total=800, folio_inicial=1):
-    print(f"Iniciando generación de {cantidad_total} vales...")
+def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800):
+    print(f"Iniciando generación de {cantidad_total} vales (Modo Corte y Apile)...")
     
-    # Configuración Hoja
+    # Configuración
     hoja_ancho, hoja_alto = landscape(letter)
     c = canvas.Canvas(nombre_archivo, pagesize=landscape(letter))
     
-    # Grilla
     filas = 4
     columnas = 2
-    vales_por_hoja = filas * columnas
+    vales_por_hoja = filas * columnas # 8 vales por hoja
     
-    # Calcular total de páginas necesarias
-    total_paginas = math.ceil(cantidad_total / vales_por_hoja)
+    # Total de páginas (hojas físicas)
+    total_paginas = math.ceil(cantidad_total / vales_por_hoja) # 800 / 8 = 100 páginas
     
-    # Márgenes y Escala
+    # Márgenes y Escalas
     margen_x = 0.5 * cm
     margen_y = 0.5 * cm
     ancho_celda = (hoja_ancho - 2*margen_x) / columnas
@@ -127,51 +127,60 @@ def generar_lote_masivo(nombre_archivo, cantidad_total=800, folio_inicial=1):
     scale_h = (alto_celda - 0.2*cm) / base_h   
     scale_factor = min(scale_w, scale_h)
 
-    folio_actual = folio_inicial
-    vales_generados = 0
-
-    # --- BUCLE PRINCIPAL DE PÁGINAS ---
-    for pagina in range(total_paginas):
+    # --- BUCLE DE PÁGINAS ---
+    for pagina_idx in range(total_paginas):
+        numero_hoja_actual = pagina_idx + 1 # De 1 a 100
         
-        # Dibujar la grilla de vales en esta página
+        # Iteramos por las posiciones de la grilla (0 a 7)
+        # Posición 0: Esquina Superior Izquierda
+        # Posición 1: Esquina Superior Derecha
+        # ... etc ...
+        contador_posicion = 0 
+        
         for fila in range(filas):
             for col in range(columnas):
-                if vales_generados >= cantidad_total:
-                    break # Parar si llegamos a 800 exactos aunque quede espacio en la hoja
+                
+                # --- LÓGICA MAESTRA DE NUMERACIÓN ---
+                # El folio se calcula sumando el número de hoja actual 
+                # más un "salto" dependiendo de en qué casillero estamos.
+                # Salto = (Posición del casillero) * (Total de Páginas)
+                
+                salto = contador_posicion * total_paginas
+                folio_actual = salto + numero_hoja_actual
+                
+                # Solo dibujamos si el folio está dentro del rango (por si no son exactos)
+                if folio_actual <= cantidad_total:
+                    
+                    # Coordenadas
+                    x_pos = margen_x + (col * ancho_celda)
+                    y_pos = hoja_alto - margen_y - ((fila + 1) * alto_celda)
+                    
+                    c.saveState()
+                    contenido_w = base_w * scale_factor
+                    contenido_h = base_h * scale_factor
+                    pad_x = (ancho_celda - contenido_w) / 2
+                    pad_y = (alto_celda - contenido_h) / 2
+                    
+                    c.translate(x_pos + pad_x, y_pos + pad_y)
+                    c.scale(scale_factor, scale_factor)
+                    
+                    dibujar_contenido_vale(c, folio_actual)
+                    c.restoreState()
+                
+                contador_posicion += 1
 
-                # Posición
-                x_pos = margen_x + (col * ancho_celda)
-                y_pos = hoja_alto - margen_y - ((fila + 1) * alto_celda)
-                
-                # Transformación y Dibujo
-                c.saveState()
-                contenido_w = base_w * scale_factor
-                contenido_h = base_h * scale_factor
-                pad_x = (ancho_celda - contenido_w) / 2
-                pad_y = (alto_celda - contenido_h) / 2
-                
-                c.translate(x_pos + pad_x, y_pos + pad_y)
-                c.scale(scale_factor, scale_factor)
-                
-                dibujar_contenido_vale(c, folio_actual)
-                c.restoreState()
-                
-                folio_actual += 1
-                vales_generados += 1
-
-        # Dibujar Guías de Corte (Solo si hubo vales en esta página)
+        # Dibujar Guías de Corte
         c.setStrokeColor(blue)
         c.setLineWidth(0.5)
         long_guia = 0.4 * cm
         
-        # Guías Horizontales
+        # Horizontales
         for i in range(filas + 1):
             y = hoja_alto - margen_y - (i * alto_celda)
             c.line(margen_x - long_guia, y, margen_x + long_guia, y)
             c.line(hoja_ancho/2 - long_guia, y, hoja_ancho/2 + long_guia, y)
             c.line(hoja_ancho - margen_x - long_guia, y, hoja_ancho - margen_x + long_guia, y)
-
-        # Guías Verticales
+        # Verticales
         for j in range(columnas + 1):
             x = margen_x + (j * ancho_celda)
             c.line(x, hoja_alto - margen_y + long_guia, x, hoja_alto - margen_y - long_guia)
@@ -180,16 +189,13 @@ def generar_lote_masivo(nombre_archivo, cantidad_total=800, folio_inicial=1):
                 y_inter = hoja_alto - margen_y - (i * alto_celda)
                 c.line(x, y_inter - long_guia, x, y_inter + long_guia)
 
-        # ¡IMPORTANTE! Terminar la página actual y crear una nueva
         c.showPage()
         
-        # Feedback en consola cada 10 páginas
-        if (pagina + 1) % 10 == 0:
-            print(f"Generando página {pagina + 1} de {total_paginas}...")
+        if numero_hoja_actual % 10 == 0:
+            print(f"Procesando página {numero_hoja_actual} de {total_paginas}...")
 
     c.save()
-    print(f"¡PROCESO TERMINADO! Se generaron {vales_generados} vales en el archivo '{nombre_archivo}'.")
+    print(f"¡LISTO! Archivo '{nombre_archivo}' generado para corte y apile.")
 
 if __name__ == "__main__":
-    # Aquí defines la cantidad total
-    generar_lote_masivo("vales_800_completos.pdf", cantidad_total=800, folio_inicial=1)
+    generar_lote_corte_y_apile("Vales_560_CorteApile.pdf", cantidad_total=560)
