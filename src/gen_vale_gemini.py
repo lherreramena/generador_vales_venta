@@ -31,7 +31,7 @@ def dibujar_vale(nombre_archivo, folio_inicio=1):
         # Texto
         c.setFont("Helvetica", 10)
         #c.drawString(margen_izq_talon + 1.4*cm, y + 0.2*cm, label)
-        c.drawString(margen_izq_talon + 1.4*cm, y, label)
+        c.drawString(margen_izq_talon + 1.4*cm, y-0.2*cm, label)
 
     # Checkboxes de pago (Talón)
     tipos_pago = ["Efectivo", "Tarjeta", "Transferencia"]
