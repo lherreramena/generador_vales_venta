@@ -92,8 +92,8 @@ def dibujar_contenido_vale(c, folio):
     c.drawImage("./assets/img/logo_patrona.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
     
     # Poster Festival placeholder
-    px, py = 16.0*cm, 1.8*cm
-    pw, ph = 2.8*cm, 4.5*cm
+    px, py = 14.3*cm, 1.8*cm
+    pw, ph = 4.5*cm, 4.5*cm
     c.setFillColorRGB(1, 0.95, 0.85) 
     c.rect(px, py, pw, ph, fill=1, stroke=0)
     c.drawImage("./assets/img/logo_bingo.png", px, py, width=pw, height=ph, mask='auto')
