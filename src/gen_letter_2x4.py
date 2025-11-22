@@ -15,7 +15,8 @@ def dibujar_contenido_vale(c, folio):
     linea_corte_x = 5.2 * cm 
     
     # Items (4 productos)
-    labels = ["Bebidas", "Completos", "Pizzetas", "Agua Mineral"]
+    #labels = ["Bebidas", "Completos", "Pizzetas", "Agua Mineral"]
+    labels = ["Te/Cafe", "Queque", "Pie/Kuchen", "Torta"]
     y_base_items = 5.4 * cm 
     item_step = 0.95 * cm
 
@@ -89,7 +90,7 @@ def dibujar_contenido_vale(c, folio):
     # Logo Azul placeholder
     c.setFillColorRGB(0.2, 0.3, 0.7) 
     c.circle(cx, cy, radio, fill=1, stroke=0)
-    c.drawImage("./assets/img/logo_patrona.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
+    c.drawImage("./assets/img/logo_cpa.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
     
     # Poster Festival placeholder
     px, py = 14.3*cm, 1.8*cm
@@ -198,4 +199,4 @@ def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800):
     print(f"¡LISTO! Archivo '{nombre_archivo}' generado para corte y apile.")
 
 if __name__ == "__main__":
-    generar_lote_corte_y_apile("Vales_560_CorteApile.pdf", cantidad_total=560)
+    generar_lote_corte_y_apile("Vales_560_CorteApile.pdf", cantidad_total=480)
