@@ -23,7 +23,7 @@ def dibujar_contenido_vale(c, folio, productos, logo_organizacion, logo_evento):
     #labels = ["Bebidas", "Completos", "Pizzetas", "Agua Mineral"]
     #labels = ["Te/Cafe", "Queque", "Pie/Kuchen", "Torta"]
     #labels = productos.split(",")
-    labels = ", ".join(productos)
+    labels = productos
     y_base_items = 5.4 * cm 
     item_step = 0.95 * cm
 
