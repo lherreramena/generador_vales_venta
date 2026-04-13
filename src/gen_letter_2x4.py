@@ -1,10 +1,15 @@
+import os
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import cm
 from reportlab.lib.colors import black, blue, white
 import math
+import argparse
 
-def dibujar_contenido_vale(c, folio):
+
+
+def dibujar_contenido_vale(c, folio, productos, logo_organizacion, logo_evento):
     """
     Dibuja el diseño lógico de un solo vale.
     (Incluye los 4 items, folio horizontal en talón y márgenes ajustados)
@@ -16,7 +21,9 @@ def dibujar_contenido_vale(c, folio):
     
     # Items (4 productos)
     #labels = ["Bebidas", "Completos", "Pizzetas", "Agua Mineral"]
-    labels = ["Te/Cafe", "Queque", "Pie/Kuchen", "Torta"]
+    #labels = ["Te/Cafe", "Queque", "Pie/Kuchen", "Torta"]
+    #labels = productos.split(",")
+    labels = ", ".join(productos)
     y_base_items = 5.4 * cm 
     item_step = 0.95 * cm
 
@@ -90,19 +97,25 @@ def dibujar_contenido_vale(c, folio):
     # Logo Azul placeholder
     c.setFillColorRGB(0.2, 0.3, 0.7) 
     c.circle(cx, cy, radio, fill=1, stroke=0)
-    c.drawImage("./assets/img/logo_cpa.png", cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
+    logo_organizacion_path = logo_organizacion
+    if not os.path.isfile(logo_organizacion):
+        logo_organizacion_path = os.path.join("./assets/img", logo_organizacion_path)
+    c.drawImage(logo_organizacion_path, cx-radio, cy-radio, width=2*radio, height=2*radio, mask='auto')
     
     # Poster Festival placeholder
     px, py = 14.3*cm, 1.8*cm
     pw, ph = 4.5*cm, 4.5*cm
     c.setFillColorRGB(1, 0.95, 0.85) 
     c.rect(px, py, pw, ph, fill=1, stroke=0)
-    c.drawImage("./assets/img/logo_bingo.png", px, py, width=pw, height=ph, mask='auto')
+    logo_evento_path = logo_evento
+    if not os.path.isfile(logo_evento):
+        logo_evento_path = os.path.join("./assets/img", logo_evento)
+    c.drawImage(logo_evento_path, px, py, width=pw, height=ph, mask='auto')
     
     c.setFillColor(black)
 
 
-def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800):
+def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800, productos="'Bebidas', 'Completos', 'Pizzetas', 'Agua Mineral'", logo_organizacion="logo_cpa.png", logo_evento="logo_bingo.png"):
     print(f"Iniciando generación de {cantidad_total} vales (Modo Corte y Apile)...")
     
     # Configuración
@@ -165,7 +178,7 @@ def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800):
                     c.translate(x_pos + pad_x, y_pos + pad_y)
                     c.scale(scale_factor, scale_factor)
                     
-                    dibujar_contenido_vale(c, folio_actual)
+                    dibujar_contenido_vale(c, folio_actual, productos, logo_organizacion, logo_evento)
                     c.restoreState()
                 
                 contador_posicion += 1
@@ -199,4 +212,28 @@ def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800):
     print(f"¡LISTO! Archivo '{nombre_archivo}' generado para corte y apile.")
 
 if __name__ == "__main__":
-    generar_lote_corte_y_apile("Vales_560_CorteApile.pdf", cantidad_total=480)
+
+    parser = argparse.ArgumentParser(description="Generador de vales de venta")
+    parser.add_argument("--cantidad", "-c", type=int, default=400, help="Cantidad de vales a generar")
+    parser.add_argument("--nombre", "-n", type=str, default="vales_cpa.pdf", help="Nombre del archivo PDF de salida")
+    parser.add_argument("--productos", "-p", type=str, nargs='+', default=["Bebidas", "Completos", "Pizzetas", "Agua Mineral"] , help="Productos a incluir en los vales (separados por comas)")
+    parser.add_argument("--logo_organizacion", "-o", type=str, default="logo_cpa.png", help="Logo de la organización (archivo PNG)")
+    parser.add_argument("--logo_evento", "-e", type=str, default="logo_bingo.png", help="Logo del evento (archivo PNG)")
+
+
+    args = parser.parse_args()
+
+    cantidad_total = args.cantidad
+    nombre_archivo = args.nombre
+    productos_input = args.productos
+    logo_organizacion = args.logo_organizacion
+    logo_evento = args.logo_evento
+
+    print(f"Parámetros recibidos:")
+    print(f"  Cantidad de vales: {cantidad_total}")
+    print(f"  Nombre del archivo: {nombre_archivo}")
+    print(f"  Productos: {productos_input}")
+    print(f"  Logo Organización: {logo_organizacion}")
+    print(f"  Logo Evento: {logo_evento}")
+
+    generar_lote_corte_y_apile(nombre_archivo, cantidad_total=cantidad_total, productos=productos_input, logo_organizacion=logo_organizacion, logo_evento=logo_evento)
