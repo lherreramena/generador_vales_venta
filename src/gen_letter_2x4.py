@@ -115,7 +115,7 @@ def dibujar_contenido_vale(c, folio, productos, logo_organizacion, logo_evento):
     c.setFillColor(black)
 
 
-def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800, productos="'Bebidas', 'Completos', 'Pizzetas', 'Agua Mineral'", logo_organizacion="logo_cpa.png", logo_evento="logo_bingo.png"):
+def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800, productos="'Bebidas', 'Completos', 'Pizzetas', 'Agua Mineral'", logo_organizacion="logo_cpa.png", logo_evento="logo_bingo.png", folio_inicial = 0):
     print(f"Iniciando generación de {cantidad_total} vales (Modo Corte y Apile)...")
     
     # Configuración
@@ -160,10 +160,10 @@ def generar_lote_corte_y_apile(nombre_archivo, cantidad_total=800, productos="'B
                 # Salto = (Posición del casillero) * (Total de Páginas)
                 
                 salto = contador_posicion * total_paginas
-                folio_actual = salto + numero_hoja_actual
+                folio_actual = folio_inicial + salto + numero_hoja_actual
                 
                 # Solo dibujamos si el folio está dentro del rango (por si no son exactos)
-                if folio_actual <= cantidad_total:
+                if folio_actual <= cantidad_total + folio_inicial:
                     
                     # Coordenadas
                     x_pos = margen_x + (col * ancho_celda)
@@ -219,6 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("--productos", "-p", type=str, nargs='+', default=["Bebidas", "Completos", "Pizzetas", "Agua Mineral"] , help="Productos a incluir en los vales (separados por comas)")
     parser.add_argument("--logo_organizacion", "-o", type=str, default="logo_cpa.png", help="Logo de la organización (archivo PNG)")
     parser.add_argument("--logo_evento", "-e", type=str, default="logo_bingo.png", help="Logo del evento (archivo PNG)")
+    parser.add_argument("--folio_inicial", "-f", type=int, default=0, help="Folio inicial para los vales")
 
 
     args = parser.parse_args()
@@ -228,6 +229,7 @@ if __name__ == "__main__":
     productos_input = args.productos
     logo_organizacion = args.logo_organizacion
     logo_evento = args.logo_evento
+    folio_inicial = args.folio_inicial
 
     print(f"Parámetros recibidos:")
     print(f"  Cantidad de vales: {cantidad_total}")
@@ -236,4 +238,4 @@ if __name__ == "__main__":
     print(f"  Logo Organización: {logo_organizacion}")
     print(f"  Logo Evento: {logo_evento}")
 
-    generar_lote_corte_y_apile(nombre_archivo, cantidad_total=cantidad_total, productos=productos_input, logo_organizacion=logo_organizacion, logo_evento=logo_evento)
+    generar_lote_corte_y_apile(nombre_archivo, cantidad_total=cantidad_total, productos=productos_input, logo_organizacion=logo_organizacion, logo_evento=logo_evento, folio_inicial=folio_inicial)
